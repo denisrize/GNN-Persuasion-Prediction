@@ -1,0 +1,37 @@
+# Ignore specific directories
+CMv data/
+.vscode/
+results/
+embedding/
+
+# Ignore Python compiled files
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore Python configuration and environment files
+*.env
+*.ini
+*.cfg
+
+# Ignore log files
+*.log
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore temporary or backup files
+*.swp
+*.bak
+*.tmp
+
+# Ignore IDE-specific files (optional)
+.vscode/
+.idea/
+
+# Ignore data files (optional)
+*.db
+*.sqlite
