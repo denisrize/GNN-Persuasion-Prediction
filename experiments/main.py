@@ -53,14 +53,15 @@ if __name__ == '__main__':
     test_processed_reduced = [submission for submission in test_processed if submission['name'] in op_names_set]
 
     # Build graphs for all conversations in the training data
+    # comment_to_include = negative_comment_ids.union(positive_comment_ids)
     conversation_graphs_train = []
     for record in tqdm(train_processed_reduced):
-        conversation_graphs_train.append(build_basic_graph(record, record["comments"], with_op=True, all_edges=True))
+        conversation_graphs_train.append(build_basic_graph(record, record["comments"], all_edges=True)) # , filter_distance=3
 
     # Build graphs for all conversations in the test data
     conversation_graphs_test = []
     for record in tqdm(test_processed_reduced):
-        conversation_graphs_test.append(build_basic_graph(record, record["comments"], with_op=True, all_edges=True))
+        conversation_graphs_test.append(build_basic_graph(record, record["comments"], all_edges=True)) # , filter_distance=3
 
     # # Save the graphs to disk
     # with open(f"{root_dir}/graphs/conversation_graphs_train.json", "w") as f:
@@ -72,40 +73,36 @@ if __name__ == '__main__':
     # Sample
     # sample_train_data = conversation_graphs_train[:20]
     # sample_test_data = conversation_graphs_test[:10]
-    node_to_idx = build_node_to_idx(conversation_graphs_train + conversation_graphs_test)
-    bert_tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-    bert_model = BertModel.from_pretrained("bert-base-uncased")
-    bert_model = bert_model.to(device)
+    # node_to_idx = build_node_to_idx(conversation_graphs_train + conversation_graphs_test)
+    # bert_tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    # bert_model = BertModel.from_pretrained("bert-base-uncased")
+    # bert_model = bert_model.to(device)
 
-    train_node_embeddings, train_op_embeddings = generate_embeddings_for_all_graphs(
-        conversation_graphs_train, bert_tokenizer, bert_model, node_to_idx, device
-    )
+    # all_nodes_embeddings, all_op_embeddings = generate_embeddings_for_all_graphs(
+    #     conversation_graphs_train + conversation_graphs_test, bert_tokenizer, bert_model, node_to_idx, device
+    # )
 
-    test_node_embeddings, test_op_embeddings = generate_embeddings_for_all_graphs(
-        conversation_graphs_test, bert_tokenizer, bert_model, node_to_idx, device
-    )
+    # # Save the embeddings to disk
+    # torch.save(all_nodes_embeddings, f"{root_dir}/embedding/all_nodes_embeddings.pt")
+    # torch.save(all_op_embeddings, f"{root_dir}/embedding/all_op_embeddings.pt")
 
-    # Save the embeddings to disk
-    torch.save(train_node_embeddings, f"{root_dir}/embedding/train_node_embeddings.pt")
-    torch.save(train_op_embeddings, f"{root_dir}/embedding/train_op_embeddings.pt")
-    torch.save(test_node_embeddings, f"{root_dir}/embedding/test_node_embeddings.pt")
-    torch.save(test_op_embeddings, f"{root_dir}/embedding/test_op_embeddings.pt")
-
-    with open(f"{root_dir}/embedding/node_to_idx.json", "w") as f:
-        json.dump(node_to_idx, f)
+    # with open(f"{root_dir}/embedding/node_to_idx.json", "w") as f:
+    #     json.dump(node_to_idx, f)
 
     # Split the data into val and test
-    train_data, val_data = train_test_split(conversation_graphs_train, test_size=0.1, random_state=42)
+    test_data, val_data = train_test_split(conversation_graphs_test, test_size=0.5, random_state=42)
 
     # Load embeddings
-    # train_node_embeddings = torch.load(f"{root_dir}/embedding/train_node_embeddings.pt")
-    # train_op_embeddings = torch.load(f"{root_dir}/embedding/train_op_embeddings.pt")
-    # test_node_embeddings = torch.load(f"{root_dir}/embedding/test_node_embeddings.pt")
-    # test_op_embeddings = torch.load(f"{root_dir}/embedding/test_op_embeddings.pt")
+    torch.cuda.empty_cache()
 
-    # # Load node-to-index mapping
-    # with open(f"{root_dir}/embedding/node_to_idx.json", "r") as f:
-    #     node_to_idx = json.load(f)
+    train_node_embeddings = torch.load(f"{root_dir}/embedding/train_node_embeddings.pt")
+    train_op_embeddings = torch.load(f"{root_dir}/embedding/train_op_embeddings.pt")
+    test_node_embeddings = torch.load(f"{root_dir}/embedding/test_node_embeddings.pt")
+    test_op_embeddings = torch.load(f"{root_dir}/embedding/test_op_embeddings.pt")
+
+    # Load node-to-index mapping
+    with open(f"{root_dir}/embedding/node_to_idx.json", "r") as f:
+        node_to_idx = json.load(f)
 
     labels = {
         comment_id: comment["delta"] if comment["delta"] is not None else 0
@@ -114,7 +111,7 @@ if __name__ == '__main__':
 
     # Create datasets
     train_dataset = GraphPerBatchDataset(
-        graphs=train_data,
+        graphs=conversation_graphs_train,
         node_embeddings=train_node_embeddings,
         op_embeddings=train_op_embeddings,
         labels=labels,
@@ -144,41 +141,36 @@ if __name__ == '__main__':
         "test": DataLoader(test_dataset, batch_size=1),
     }
 
-    # Display a batch from each DataLoader
-    for split, loader in dataloaders.items():
-        print(f"{split.capitalize()} DataLoader:")
-        for batch in loader:
-            print(batch)
-            break
-
-    train_class_weights = calculate_class_weights(dataloaders["train"], device=device)
-    print(f"Class Weights: {train_class_weights}")
-
     # Define hyperparameters
-    learning_rates = [0.001, 0.0001] # 
-    num_epochs = [50, 200] # ,  
+    learning_rates = [0.001, 0.0001,0.00001] #  
+    num_epochs = [50, 200 ] # ,
     weight_decay_values = [1e-5, 1e-3] # 
     dropout_rates = [0.1, 0.3] # 
-    model_types = ["distance_weighted_gnn", "edge_weighted_gnn", "baseline"]
+    model_types = ["distance_weighted_gnn" , "edge_weighted_gnn", "baseline"] #, 
+    class_weight_options = ["balanced", "double"] # 
+    distances_from_op = [1, 3, 5] #  
 
     # Variables to track the best model for each type
     best_val_loss_by_model = {model_type: float('inf') for model_type in model_types}
     best_hyperparams_by_model = {model_type: None for model_type in model_types}
     best_model_state_by_model = {model_type: None for model_type in model_types}
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Iterate over combinations
-    for model_type, lr, epochs, weight_decay, dropout in tqdm(product(model_types, learning_rates, num_epochs, weight_decay_values, dropout_rates)):
-        print(f"Training with model: {model_type}, lr: {lr}, epochs: {epochs}, l1: {weight_decay}, dropout: {dropout}")
+    for model_type, lr, epochs, weight_decay, dropout, weight_option in tqdm(
+            product(model_types, learning_rates, num_epochs, weight_decay_values, dropout_rates, class_weight_options)):
+
+        print(f"Training with model: {model_type}, lr: {lr}, epochs: {epochs}, l1: {weight_decay}, dropout: {dropout}, class_weights: {weight_option}")
 
         results_dir = f'{root_dir}/results/{model_type}'
         os.makedirs(results_dir, exist_ok=True)
 
         # Create a subdirectory for the current hyperparameters
-        hyperparam_dir = f"{results_dir}/lr_{lr}_epochs_{epochs}_l1_{weight_decay}_dropout_{dropout}"
-        # if os.path.exists(hyperparam_dir):
-        #     continue
-
+        hyperparam_dir = f"{results_dir}/lr_{lr}_epochs_{epochs}_l1_{weight_decay}_dropout_{dropout}_{weight_option}"
         os.makedirs(hyperparam_dir, exist_ok=True)
+
+        # Calculate class weights based on the option
+        train_class_weights = calculate_class_weights(dataloaders["train"], balanced=(weight_option == "balanced"), device=device)
 
         if model_type == "distance_weighted_gnn":
             model = DistanceWeightedGNN(
@@ -195,29 +187,32 @@ if __name__ == '__main__':
                 dropout=dropout
             )
         elif model_type == "baseline":
-            inputs_dim = train_dataset[0].x.shape[1] + train_dataset[0].op.shape[1]
-            hidden_dim = 256
+            input_dim = train_dataset[0].x.shape[1] + train_dataset[0].op.shape[1]
+            hidden_dim = 128
             output_dim = 2
-            model = BaselineNodeClassifier(inputs_dim, hidden_dim, output_dim, dropout=dropout)
+            model = BaselineNodeClassifier(input_dim, hidden_dim, output_dim, dropout=dropout)
 
         # Train and evaluate
-        train_losses, val_losses, model_best_val = train_and_evaluate_model(
+        train_losses, val_losses, model_best_val, best_val_loss, best_val_epoch = train_and_evaluate_model(
             model, dataloaders, epochs=epochs, lr=lr, class_weights=train_class_weights, weight_decay=weight_decay, device=device
         )
 
         torch.save(model_best_val, f"{hyperparam_dir}/model_state.pth")
 
         # Track the best model for the current model type based on validation loss
-        avg_val_loss = sum(val_losses) / len(val_losses)
-        if avg_val_loss < best_val_loss_by_model[model_type]:
-            best_val_loss_by_model[model_type] = avg_val_loss
-            best_model_state_by_model[model_type] = model_best_val
-            best_hyperparams_by_model[model_type] = {"lr": lr, "epochs": epochs, "l1_lambda": weight_decay, "dropout": dropout}
 
+        if best_val_loss < best_val_loss_by_model[model_type]:
+            best_val_loss_by_model[model_type] = best_val_loss
+            best_model_state_by_model[model_type] = model_best_val
+            best_hyperparams_by_model[model_type] = {"lr": lr, "epochs": epochs, "l1_lambda": weight_decay, "dropout": dropout, "class_weights": weight_option, "best_val_loss": best_val_loss, "best_val_epoch": best_val_epoch}
+        
         # Plot and save losses for the current model
         plot_loss(train_losses, val_losses, hyperparam_dir)
-        evaluate_model_on_test(model, dataloaders["test"], results_dir=hyperparam_dir, device=device)
 
+        # Check various distances from the root node
+        for distance in distances_from_op:
+            print(f"Evaluating model on test set with distance: {distance}")
+            evaluate_model_on_test(model, dataloaders["test"], results_dir=hyperparam_dir, filter_by_distance=distance, device=device)
 
     # Save the best hyperparameters and models for each model type
     for model_type in model_types:
@@ -248,7 +243,7 @@ if __name__ == '__main__':
             )
         elif model_type == "baseline":
             input_dim = train_dataset[0].x.shape[1] + train_dataset[0].op.shape[1]
-            hidden_dim = 256
+            hidden_dim = 128
             output_dim = 2
             best_model = BaselineNodeClassifier(
                 input_dim, hidden_dim, output_dim,
@@ -259,5 +254,7 @@ if __name__ == '__main__':
         best_model.load_state_dict(best_model_state_by_model[model_type])
         best_model = best_model.to(device) 
 
-        # Evaluate on the test set 
-        evaluate_model_on_test(best_model, dataloaders["test"], results_dir=best_hyperparams_dir, device=device)
+        # Check various distances from the root node
+        for distance in distances_from_op:
+            print(f"Evaluating model on test set with distance: {distance}")
+            evaluate_model_on_test(best_model, dataloaders["test"], results_dir=best_hyperparams_dir, filter_by_distance=distance, device=device)

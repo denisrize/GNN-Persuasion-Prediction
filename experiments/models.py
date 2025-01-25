@@ -5,9 +5,11 @@ import torch.nn.functional as F
 from torch_geometric.nn import GCNConv
 from torch_geometric.data import Data
 
+from torch_geometric.nn import MessagePassing
+
 # Approach 1: Learnable Transformation for Edge Weights
 class EdgeWeightedGNN(MessagePassing):
-    def __init__(self, in_channels, op_channels, out_channels, num_layers=2, hidden_dim=64, dropout=0.2):
+    def __init__(self, in_channels, op_channels, out_channels, num_layers=3, hidden_dim=64, dropout=0.2):
         super(EdgeWeightedGNN, self).__init__(aggr="add")  # Aggregation type
         self.num_layers = num_layers
         self.node_mlp = torch.nn.ModuleList(
@@ -55,9 +57,10 @@ class EdgeWeightedGNN(MessagePassing):
 class DistanceWeightedGNN(torch.nn.Module):
     def __init__(self, in_channels, op_channels, out_channels, dropout=0.2):
         super(DistanceWeightedGNN, self).__init__()
-        self.conv1 = GCNConv(in_channels, 64)
-        self.conv2 = GCNConv(64, 64)
-        self.projection = torch.nn.Linear(64, in_channels)  # Project back to initial embedding size
+        self.conv1 = GCNConv(in_channels, 128)
+        self.conv2 = GCNConv(128, 64)
+        self.conv3 = GCNConv(64, 32)
+        self.projection = torch.nn.Linear(32, in_channels)  # Project back to initial embedding size
         self.fc = torch.nn.Linear(in_channels + op_channels, out_channels)  # Adjust size
         self.dropout = torch.nn.Dropout(dropout)
 
@@ -70,6 +73,9 @@ class DistanceWeightedGNN(torch.nn.Module):
         x = F.relu(x)
         x = self.dropout(x)
         x = self.conv2(x, batch.edge_index, edge_weight=edge_weight.squeeze())
+        x = F.relu(x)
+        x = self.dropout(x)
+        x = self.conv3(x, batch.edge_index, edge_weight=edge_weight.squeeze())
         x = F.relu(x)
         x = self.dropout(x)
 
@@ -91,7 +97,8 @@ class BaselineNodeClassifier(nn.Module):
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout)
-        self.fc2 = nn.Linear(hidden_dim, output_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim//2)
+        self.fc3 = nn.Linear(hidden_dim//2, output_dim)
         self.softmax = nn.Softmax(dim=1)  # For classification
 
     def forward(self, data):
@@ -101,6 +108,10 @@ class BaselineNodeClassifier(nn.Module):
         x = self.relu(x)
         x = self.dropout(x)
         x = self.fc2(x)
+        x = self.relu(x)
+        x = self.dropout(x)
+        x = self.fc3(x)
+        
         return self.softmax(x)
 
 class GraphPerBatchDataset(torch.utils.data.Dataset):
@@ -142,9 +153,14 @@ class GraphPerBatchDataset(torch.utils.data.Dataset):
             dtype=torch.float,
         ).unsqueeze(1)  # Shape: [num_edges, 1]
 
-        node_types = torch.tensor(
-            [graph.nodes[node]["node_type"] for node in graph_nodes],
-            dtype=torch.long,
+        mask_nodes = torch.tensor(
+            [graph.nodes[node]["mask"] for node in graph_nodes],
+            dtype=torch.float,
+        )  # Assign 1 for "predict" and 0 for "author" for op nodes
+
+        node_op_distance = torch.tensor(
+            [graph.nodes[node]["distance_to_op"] for node in graph_nodes],
+            dtype=torch.float,
         )  # Assign 1 for "predict" and 0 for "author" for op nodes
 
         # Prepare features and labels
@@ -153,4 +169,4 @@ class GraphPerBatchDataset(torch.utils.data.Dataset):
         graph_labels = torch.tensor([self.labels[node] for node in graph_nodes], dtype=torch.long)
 
         # Create a `Data` object for the graph
-        return Data(x=embeddings, edge_index=edge_index, edge_attr=edge_attr, op=op_feats, node_type=node_types, y=graph_labels)
+        return Data(x=embeddings, edge_index=edge_index, edge_attr=edge_attr, op=op_feats, mask_node=mask_nodes, node_op_distance=node_op_distance, y=graph_labels)

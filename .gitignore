@@ -3,6 +3,8 @@ CMv data/
 .vscode/
 results/
 embedding/
+bert_op_finetuned/
+classification_results/
 
 # Ignore Python compiled files
 __pycache__/
@@ -16,6 +18,14 @@ env/
 *.env
 *.ini
 *.cfg
+*.txt
+*.csv
+*.json
+*.zip
+*.bin
+*.pt
+*.pth
+*.png
 
 # Ignore log files
 *.log
