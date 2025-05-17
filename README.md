@@ -34,9 +34,10 @@ The dataset is derived from the Change My View (CMV) subreddit, a structured onl
 Each conversation is structured as a tree, with the Original Poster (OP) as the root node and subsequent replies forming branches. A comment is considered persuasive if the OP explicitly acknowledges it with a delta.
 
 <p align="center">
-  <img src="https://github.com/denisrize/GNN-Persuasion-Prediction/raw/main/figures/conversation_graph.png" alt="Example Conversation Graph" width="60%">
+  
+  <img src="https://github.com/user-attachments/assets/0d9f5a94-f783-4a39-bfeb-b9864b5faae9" alt="Example Conversation Graph" width="60%">
   <br>
-  <em>Figure 1: Example Conversation Graph with OP Nodes (as root), Delta node in black and All Edges.</em>
+  <em>Figure 1: Example Conversation Graph with OP Nodes (as root) in black, Delta node in green and All Edges.</em>
 </p>
 
 ## 🧠 Methodology
@@ -68,9 +69,9 @@ We explore different feature groups:
 Our experiments show that GNN-based models, especially the Distance-Weighted GNN, outperform baseline models by effectively leveraging conversation structure. The Distance-Weighted GNN shows greater resilience when predicting persuasion at deeper conversation levels compared to traditional BERT-based models.
 
 <p align="center">
-  <img src="https://github.com/denisrize/GNN-Persuasion-Prediction/raw/main/figures/results_by_model.png" alt="Results by Model" width="80%">
+  <img src="https://github.com/user-attachments/assets/e723ae20-dbb3-4695-8e04-4e0c3191b170" alt="Results by Model" width="60%">
   <br>
-  <em>Figure 3: Results by Model and Input</em>
+  <em>Figure 3: Results by Model and Input for Comment + OP Node enhanced</em>
 </p>
 
 ### Key Findings
