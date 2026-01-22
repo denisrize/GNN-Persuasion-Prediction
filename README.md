@@ -1,4 +1,10 @@
-# GNN Persuasion Prediction
+# Modeling Persuasion in Reddit Conversations
+
+This project examines how conversation dynamics and user characteristics influence persuasion within
+the Change My View (CMV) subreddit. We employ Graph Neural Networks (GNNs) and fine-tuned
+BERT embeddings to predict the likelihood of a comment receiving a delta, an indicator of successful
+persuasion. Our experiments reveal that GNN-based models, particularly the Distance-Weighted GNN,
+outperform baseline models by effectively leveraging conversation structure.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
@@ -137,12 +143,6 @@ python analyze_results.py --results_file results.json --output_folder visualizat
 - **Feature Engineering**: Explore additional features such as sentiment progression and user engagement metrics.
 - **Advanced Graph Architectures**: Explore attention-based GNNs (like GATs) which dynamically weight influential comments.
 - **Real-World Applications**: Potential applications include automated moderation, marketing analysis, and research in social psychology.
-
-## 👥 Team Members
-- **Denis Rize** - Data acquisition, cleaning, EDA, GNN architectures, and report writing
-- **Gad Miller** - Design of GNN architectures, planning and execution of statistical experiments
-- **Yuval Schwartz** - Data preprocessing, BERT fine-tuning, and report writing
-- **Noam Azulay** - Model evaluation, visualization tools, and project presentations
 
 ## 📚 References
 1. Tan, C., Niculae, V., Danescu-Niculescu-Mizil, C., & Lee, L. (2016). Winning arguments: Interaction dynamics and persuasion strategies in good-faith online discussions. *Proceedings of the 25th International Conference on World Wide Web*.
