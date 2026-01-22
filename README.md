@@ -1,5 +1,15 @@
 # Modeling Persuasion in Reddit Conversations
 
+**📄 Dataset Reference:** This project uses the Change My View (CMV) dataset introduced in:
+
+**Tan, C., Niculae, V., Danescu-Niculescu-Mizil, C., & Lee, L. (2016).** *Winning Arguments: Interaction Dynamics and Persuasion Strategies in Good-faith Online Discussions.* Proceedings of the 25th International Conference on World Wide Web (WWW '16).
+
+🔗 **Paper:** [https://dl.acm.org/doi/abs/10.1145/2872427.2883081](https://dl.acm.org/doi/abs/10.1145/2872427.2883081)  
+🔗 **arXiv:** [https://arxiv.org/abs/1602.01103](https://arxiv.org/abs/1602.01103)
+
+The dataset contains **hundreds of thousands of conversations** from the CMV subreddit (January 2013 - August 2015), where users explicitly indicate successful persuasion attempts through delta (Δ) awards. For complete details about the data collection methodology, annotation scheme, and baseline analyses, please refer to the original paper.
+
+
 This project examines how conversation dynamics and user characteristics influence persuasion within
 the Change My View (CMV) subreddit. We employ Graph Neural Networks (GNNs) and fine-tuned
 BERT embeddings to predict the likelihood of a comment receiving a delta, an indicator of successful
@@ -18,10 +28,11 @@ This repository contains the implementation for "Modeling Persuasion in Reddit C
 - [Overview](#overview)
 - [Dataset](#dataset)
 - [Methodology](#methodology)
+- [Project Structure](#project-structure)
+- [Experiments Module](#experiments-module)
 - [Results](#results)
 - [Setup and Usage](#setup-and-usage)
 - [Future Work](#future-work)
-- [Team Members](#team-members)
 - [References](#references)
 
 ## 🔍 Overview
@@ -68,6 +79,112 @@ We explore different feature groups:
 - Comment-only embeddings (BERT or GNN-based)
 - Comment + OP embeddings from standard BERT
 - Comment + OP embeddings from fine-tuned BERT
+
+## 📁 Project Structure
+
+```
+Modeling-Persuasion-Conversations/
+├── experiments/                    # Core experimental modules
+│   ├── data_processing/           # Data loading and preprocessing
+│   ├── models/                    # Model architectures
+│   ├── training/                  # Training loops and utilities
+│   ├── evaluation/                # Evaluation metrics and analysis
+│   └── utils/                     # Helper functions
+├── Modeling_Persuasion_Report.pdf # Detailed project report
+├── README.md                      # This file
+└── .gitignore
+```
+
+## 🧪 Experiments Module
+
+The `experiments/` directory contains all the code for reproducing and extending our research. Below is a detailed description of each component:
+
+### Data Processing
+
+Handles loading the CMV dataset and converting conversations into graph structures suitable for GNN processing.
+
+| Module | Description |
+|--------|-------------|
+| `data_loader.py` | Loads raw CMV conversation data and delta annotations |
+| `graph_builder.py` | Converts conversation trees into PyTorch Geometric graph objects |
+| `embeddings.py` | Generates BERT embeddings for comment text and OP posts |
+| `preprocessing.py` | Text cleaning, tokenization, and feature extraction |
+
+**Key functionality:**
+- Parses conversation threads into hierarchical tree structures
+- Computes node features using pre-trained BERT (`bert-base-uncased`)
+- Calculates edge attributes including distance from OP (root node)
+- Handles train/test splitting while preserving conversation integrity
+
+### Models
+
+Contains implementations of all neural network architectures used in the experiments.
+
+| Module | Description |
+|--------|-------------|
+| `baseline_bert.py` | BERT-based classifier that treats each comment independently |
+| `distance_weighted_gnn.py` | GNN with predefined edge weights based on comment depth |
+| `edge_weighted_gnn.py` | GNN with learnable edge transformations via MLPs |
+| `layers.py` | Custom GNN layers and message passing implementations |
+
+**Model Architectures:**
+
+1. **Baseline BERT Model**: Uses BERT embeddings for both comments and OPs, treating each node independently without graph-based propagation.
+
+2. **Distance-Weighted GNN**: 
+   - Assigns predefined edge weights based on comment depth in the conversation tree
+   - Uses 2 Graph Convolutional Network (GCN) layers
+   - Edge weights decay with distance from OP to capture the importance of proximity
+
+3. **Edge-Weighted GNN**:
+   - Applies learnable MLPs to transform both node features and edge attributes
+   - Enables dynamic message propagation that adapts to conversation patterns
+   - More flexible but requires more training data
+
+### Training
+
+Scripts and utilities for model training and hyperparameter tuning.
+
+| Module | Description |
+|--------|-------------|
+| `trainer.py` | Main training loop with early stopping and checkpointing |
+| `loss_functions.py` | Custom loss functions for handling class imbalance |
+| `optimizers.py` | Optimizer configurations and learning rate schedulers |
+| `config.py` | Hyperparameter configurations for all experiments |
+
+**Training Details:**
+- Handles highly imbalanced data (few delta comments vs. many non-delta)
+- Implements weighted loss functions to address class imbalance
+- Supports both single-GPU and multi-GPU training
+- Includes learning rate warmup and decay schedules
+
+### Evaluation
+
+Tools for analyzing model performance across different conversation depths and feature configurations.
+
+| Module | Description |
+|--------|-------------|
+| `metrics.py` | Accuracy, F1-score, precision, recall computations |
+| `depth_analysis.py` | Performance breakdown by comment distance from OP |
+| `visualization.py` | Plotting functions for results and conversation graphs |
+| `statistical_tests.py` | Significance testing between model variants |
+
+**Key Analyses:**
+- Performance metrics at each conversation depth level
+- Comparison across feature groups (comment-only, +OP, +fine-tuned OP)
+- Visualization of score trends across distances
+- Statistical significance testing between models
+
+### Utils
+
+Helper functions and shared utilities.
+
+| Module | Description |
+|--------|-------------|
+| `io_utils.py` | File I/O, checkpoint saving/loading |
+| `logging_utils.py` | Experiment logging and TensorBoard integration |
+| `seed.py` | Random seed management for reproducibility |
+
 
 ## 📈 Results
 
