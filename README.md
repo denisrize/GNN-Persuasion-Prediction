@@ -1,5 +1,12 @@
 # Modeling Persuasion in Reddit Conversations
 
+> **📄 Dataset Reference:** This project uses the Change My View (CMV) dataset introduced in:
+>
+> **Tan, C., Niculae, V., Danescu-Niculescu-Mizil, C., & Lee, L. (2016).** *Winning Arguments: Interaction Dynamics and Persuasion Strategies in Good-faith Online Discussions.* Proceedings of the 25th International Conference on World Wide Web (WWW '16).
+>
+> 🔗 **Paper:** [https://dl.acm.org/doi/abs/10.1145/2872427.2883081](https://dl.acm.org/doi/abs/10.1145/2872427.2883081)  
+> 🔗 **arXiv:** [https://arxiv.org/abs/1602.01103](https://arxiv.org/abs/1602.01103)
+
 This repository contains the implementation for "Modeling Persuasion in Reddit Conversations" - a project that uses Graph Neural Networks (GNNs) to predict persuasive comments in the Reddit Change My View (CMV) subreddit.
 This project examines how conversation dynamics and user characteristics influence persuasion within
 the Change My View (CMV) subreddit. We employ Graph Neural Networks (GNNs) and fine-tuned
@@ -11,15 +18,6 @@ outperform baseline models by effectively leveraging conversation structure.
   <img src="https://img.shields.io/badge/PyTorch-1.9+-red.svg" alt="PyTorch">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
 </p>
-
-**📄 Dataset Reference:** This project uses the Change My View (CMV) dataset introduced in:
-
-**Tan, C., Niculae, V., Danescu-Niculescu-Mizil, C., & Lee, L. (2016).** *Winning Arguments: Interaction Dynamics and Persuasion Strategies in Good-faith Online Discussions.* Proceedings of the 25th International Conference on World Wide Web (WWW '16).
-
-🔗 **Paper:** [https://dl.acm.org/doi/abs/10.1145/2872427.2883081](https://dl.acm.org/doi/abs/10.1145/2872427.2883081)  
-🔗 **arXiv:** [https://arxiv.org/abs/1602.01103](https://arxiv.org/abs/1602.01103)
-
-The dataset contains **hundreds of thousands of conversations** from the CMV subreddit (January 2013 - August 2015), where users explicitly indicate successful persuasion attempts through delta (Δ) awards. For complete details about the data collection methodology, annotation scheme, and baseline analyses, please refer to the original paper.
 
 ## 📋 Table of Contents
 - [Overview](#overview)
