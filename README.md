@@ -1,5 +1,17 @@
 # Modeling Persuasion in Reddit Conversations
 
+This repository contains the implementation for "Modeling Persuasion in Reddit Conversations" - a project that uses Graph Neural Networks (GNNs) to predict persuasive comments in the Reddit Change My View (CMV) subreddit.
+This project examines how conversation dynamics and user characteristics influence persuasion within
+the Change My View (CMV) subreddit. We employ Graph Neural Networks (GNNs) and fine-tuned
+BERT embeddings to predict the likelihood of a comment receiving a delta, an indicator of successful
+persuasion. Our experiments reveal that GNN-based models, particularly the Distance-Weighted GNN,
+outperform baseline models by effectively leveraging conversation structure.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
+  <img src="https://img.shields.io/badge/PyTorch-1.9+-red.svg" alt="PyTorch">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+</p>
+
 **📄 Dataset Reference:** This project uses the Change My View (CMV) dataset introduced in:
 
 **Tan, C., Niculae, V., Danescu-Niculescu-Mizil, C., & Lee, L. (2016).** *Winning Arguments: Interaction Dynamics and Persuasion Strategies in Good-faith Online Discussions.* Proceedings of the 25th International Conference on World Wide Web (WWW '16).
@@ -8,21 +20,6 @@
 🔗 **arXiv:** [https://arxiv.org/abs/1602.01103](https://arxiv.org/abs/1602.01103)
 
 The dataset contains **hundreds of thousands of conversations** from the CMV subreddit (January 2013 - August 2015), where users explicitly indicate successful persuasion attempts through delta (Δ) awards. For complete details about the data collection methodology, annotation scheme, and baseline analyses, please refer to the original paper.
-
-
-This project examines how conversation dynamics and user characteristics influence persuasion within
-the Change My View (CMV) subreddit. We employ Graph Neural Networks (GNNs) and fine-tuned
-BERT embeddings to predict the likelihood of a comment receiving a delta, an indicator of successful
-persuasion. Our experiments reveal that GNN-based models, particularly the Distance-Weighted GNN,
-outperform baseline models by effectively leveraging conversation structure.
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
-  <img src="https://img.shields.io/badge/PyTorch-1.9+-red.svg" alt="PyTorch">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-</p>
-
-This repository contains the implementation for "Modeling Persuasion in Reddit Conversations" - a project that uses Graph Neural Networks (GNNs) to predict persuasive comments in the Reddit Change My View (CMV) subreddit.
 
 ## 📋 Table of Contents
 - [Overview](#overview)
