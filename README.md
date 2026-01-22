@@ -30,14 +30,14 @@ outperform baseline models by effectively leveraging conversation structure.
 - [Future Work](#future-work)
 - [References](#references)
 
-## 🔍 Overview
-
+## Overview 
+🔍
 This study examines how conversation dynamics and user characteristics influence persuasion within the Change My View (CMV) subreddit. We employ Graph Neural Networks (GNNs) and fine-tuned BERT embeddings to predict the likelihood of a comment receiving a delta, an indicator of successful persuasion.
 
 Our experiments reveal that GNN-based models, particularly the Distance-Weighted GNN, outperform baseline models by effectively leveraging conversation structure. Contrary to prior research emphasizing OP malleability, we find that enriched OP embeddings provide minimal additional benefits. These results suggest that capturing conversational depth and structure is more critical for persuasion modeling than OP-specific linguistic features alone.
 
-## 📊 Dataset
-
+## Dataset
+📊
 The dataset is derived from the Change My View (CMV) subreddit, a structured online discussion platform where users engage in debates and award deltas to comments they find persuasive. The dataset consists of:
 - Hundreds of thousands of comments
 - Discussions from January 2013 to August 2015
@@ -52,8 +52,8 @@ Each conversation is structured as a tree, with the Original Poster (OP) as the 
   <em>Figure 1: Example Conversation Graph with OP Nodes (as root) in black, Delta node in green and All Edges.</em>
 </p>
 
-## 🧠 Methodology
-
+## Methodology
+🧠
 Our approach involves three primary modeling strategies to predict the likelihood of a comment receiving a delta:
 
 ### 1. Baseline Model
@@ -75,7 +75,8 @@ We explore different feature groups:
 - Comment + OP embeddings from standard BERT
 - Comment + OP embeddings from fine-tuned BERT
 
-## 📁 Project Structure
+##  Project Structure
+📁
 
 ```
 Modeling-Persuasion-Conversations/
@@ -90,8 +91,8 @@ Modeling-Persuasion-Conversations/
 └── .gitignore
 ```
 
-## 🧪 Experiments Module
-
+##  Experiments Module
+🧪
 The `experiments/` directory contains all the code for reproducing and extending our research. Below is a detailed description of each component:
 
 ### Data Processing
@@ -181,7 +182,8 @@ Helper functions and shared utilities.
 | `seed.py` | Random seed management for reproducibility |
 
 
-## 📈 Results
+##  Results
+📈
 
 ### Model Performance
 Our experiments show that GNN-based models, especially the Distance-Weighted GNN, outperform baseline models by effectively leveraging conversation structure. The Distance-Weighted GNN shows greater resilience when predicting persuasion at deeper conversation levels compared to traditional BERT-based models.
@@ -208,7 +210,8 @@ Performance metrics show:
 | Comment Node + OP Node | 0.79 | -0.006 | 0.265 | 0.002 |
 | Comment Node + OP Fine-Tuned Node | 0.79 | -0.004 | 0.262 | 0.001 |
 
-## 🛠️ Setup and Usage
+##  Setup and Usage
+🛠️
 
 ### Requirements
 ```
@@ -250,12 +253,12 @@ The experiments script will output accuracy and F1-scores for different conversa
 python analyze_results.py --results_file results.json --output_folder visualizations
 ```
 
-## 🔮 Future Work
+## Future Work
 
 - **Feature Engineering**: Explore additional features such as sentiment progression and user engagement metrics.
 - **Advanced Graph Architectures**: Explore attention-based GNNs (like GATs) which dynamically weight influential comments.
 - **Real-World Applications**: Potential applications include automated moderation, marketing analysis, and research in social psychology.
 
-## 📚 References
+## References
 1. Tan, C., Niculae, V., Danescu-Niculescu-Mizil, C., & Lee, L. (2016). Winning arguments: Interaction dynamics and persuasion strategies in good-faith online discussions. *Proceedings of the 25th International Conference on World Wide Web*.
 2. Wei, Z., Liu, Y., & Li, Y. (2016). Is this post persuasive? ranking argumentative comments in online forum. *Annual Meeting of the Association for Computational Linguistics*.
